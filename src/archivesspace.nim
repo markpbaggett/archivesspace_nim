@@ -16,6 +16,9 @@ proc newArchivesSpace*(url: string="http://localhost:8089", user: string="admin"
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   this.client.get(this.base_url & "/repositories").body
 
+method get_repository_by_id*(this: ArchivesSpace, repo_id: int): string {. base .} =
+  this.client.get(this.base_url & "/repositories/" & $repo_id).body
+
 when isMainModule:
   var x = newArchivesSpace()
-  echo x.get_all_repositories()
+  echo x.get_repository_by_id(2)
