@@ -34,7 +34,7 @@ method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ##
   this.client.get(this.base_url & "/repositories").body
 
-method get_repository_by_id*(this: ArchivesSpace, repo_id: int): string {. base .} =
+method get_repository_by_id*(this: ArchivesSpace, repo_id: string): string {. base .} =
   ## Gets a rpository by its id.
   ##
   ## Examples:
@@ -42,7 +42,7 @@ method get_repository_by_id*(this: ArchivesSpace, repo_id: int): string {. base 
   ## .. code-block:: nim
   ##
   ##    let x = newArchivesSpace()
-  ##    x.get_repository_by_id(7)
+  ##    x.get_repository_by_id("7")
   ##
   this.client.get(this.base_url & "/repositories/" & $repo_id).body
 
@@ -50,7 +50,7 @@ method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: str
   ## Creates a new repository in the ArchivesSpace instance.
   ##
   ## Requires:
-  ##   repo_code (string): An unique numerical value to serve as an identifier.
+  ##   repo_code (string): An unique identifier.
   ##   repo_name (string): The name of the new repository.
   ##
   ## Returns:
@@ -61,7 +61,7 @@ method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: str
   ## .. code-block:: nim
   ##
   ##    let x = newArchivesSpace()
-  ##    echo x.create_repository("7", "Nim Test")
+  ##    echo x.create_repository("NIM", "Nim Test")
   ##
   let body = %*{
     "repo_code": repo_code,
@@ -83,7 +83,25 @@ method delete_repository*(this: ArchivesSpace, repo_code: string): string {. bas
   ##
   this.client.delete(this.base_url & "/repositories/" & repo_code).status
 
+method update_repository_name*(this: ArchivesSpace, repo_code: string, repo_name: string): string {. base .} =
+  ## Updates a repository name.
+  ##
+  ## Examples
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.update_repository.name("7", "New Repo Name")
+  ##
+  var old_data = parseJson(this.get_repository_by_id(repo_code))
+  let body = %*{
+    "repo_code": old_data["repo_code"].getStr(),
+    "name": repo_name,
+    "publish": old_data["publish"].getBool()
+  }
+  this.client.post(this.base_url & "/repositories/" & repo_code, body = $body).status
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.delete_repository("104")
+  echo x.update_repository_name("2", "test")
+  echo x.get_repository_by_id("2")
