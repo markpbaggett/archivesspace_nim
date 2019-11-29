@@ -1,4 +1,4 @@
-import httpclient, json
+import httpclient, json, sequtils, strutils
 
 type
   ArchivesSpace* = ref object of RootObj
@@ -35,7 +35,7 @@ method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   this.client.get(this.base_url & "/repositories").body
 
 method get_repository_by_id*(this: ArchivesSpace, repo_id: string): string {. base .} =
-  ## Gets a rpository by its id.
+  ## Gets a repository by its id.
   ##
   ## Examples:
   ##
@@ -86,7 +86,7 @@ method delete_repository*(this: ArchivesSpace, repo_code: string): string {. bas
 method update_repository_name*(this: ArchivesSpace, repo_code: string, repo_name: string): string {. base .} =
   ## Updates a repository name.
   ##
-  ## Examples
+  ## Examples:
   ##
   ## .. code-block:: nim
   ##
@@ -101,7 +101,18 @@ method update_repository_name*(this: ArchivesSpace, repo_code: string, repo_name
   }
   this.client.post(this.base_url & "/repositories/" & repo_code, body = $body).status
 
+method get_list_of_user_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Gets a sequence of user ids as strings.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_list_of_user_ids()
+  ##
+  this.client.get(this.base_url & "/users?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.update_repository_name("2", "test")
-  echo x.get_repository_by_id("2")
+  echo x.get_list_of_user_ids()
