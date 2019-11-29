@@ -8,6 +8,14 @@ type
     username: string
 
 proc newArchivesSpace*(url: string="http://localhost:8089", user: string="admin", password: string="admin"): ArchivesSpace =
+  ## Constructs a new ArchivesSpace instance.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##
   let client = newHttpClient()
   let json_data = parseJson(client.post(url & "/users/" & user & "/login?password=" & password).body)
   let session = json_data["session"].getStr()
@@ -15,9 +23,27 @@ proc newArchivesSpace*(url: string="http://localhost:8089", user: string="admin"
   ArchivesSpace(base_url: url, client: client, username: user)
 
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
+  ## Gets all repositories in an ArchivesSpace instance.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_all_respositories()
+  ##
   this.client.get(this.base_url & "/repositories").body
 
 method get_repository_by_id*(this: ArchivesSpace, repo_id: int): string {. base .} =
+  ## Gets a rpository by its id.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    x.get_repository_by_id(7)
+  ##
   this.client.get(this.base_url & "/repositories/" & $repo_id).body
 
 method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: string): string {. base .} =
@@ -34,7 +60,7 @@ method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: str
   ##
   ## .. code-block:: nim
   ##
-  ##    var x = newArchivesSpace()
+  ##    let x = newArchivesSpace()
   ##    echo x.create_repository("7", "Nim Test")
   ##
   let body = %*{
@@ -52,12 +78,12 @@ method delete_repository*(this: ArchivesSpace, repo_code: string): string {. bas
   ##
   ## .. code-block:: nim
   ##
-  ##    var x = newArchivesSpace()
+  ##    let x = newArchivesSpace()
   ##    echo x.delete_repository("7")
   ##
   this.client.delete(this.base_url & "/repositories/" & repo_code).status
 
 
 when isMainModule:
-  var x = newArchivesSpace()
-  echo x.delete_repository("103")
+  let x = newArchivesSpace()
+  echo x.delete_repository("104")
