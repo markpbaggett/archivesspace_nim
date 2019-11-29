@@ -45,7 +45,19 @@ method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: str
   }
   this.client.post(this.base_url & "/repositories", body = $body).status
 
+method delete_repository*(this: ArchivesSpace, repo_code: string): string {. base .} =
+  ## Deletes an existing repository.
+  ##
+  ## Examples
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    var x = newArchivesSpace()
+  ##    echo x.delete_repository("7")
+  ##
+  this.client.delete(this.base_url & "/repositories/" & repo_code).status
+
 
 when isMainModule:
   var x = newArchivesSpace()
-  echo x.create_repository("7", "Nim Test")
+  echo x.delete_repository("103")
