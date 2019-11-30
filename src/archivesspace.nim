@@ -113,6 +113,26 @@ method get_list_of_user_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ##
   this.client.get(this.base_url & "/users?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
+method get_list_of_users*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes containing details about each user in the instance of ArchivesSpace.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_list_of_users()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(this.base_url & "/users?page=" & $page & "&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  while page <= last_page:
+    data = parseJson(this.client.get(this.base_url & "/users?page=" & $page & "&page_size=10").body)
+    let users = data["results"].getElems()
+    for user in users:
+      result.add(user)
+    page += 1
+
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_list_of_user_ids()
+  echo x.get_list_of_users()
