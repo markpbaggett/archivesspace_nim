@@ -165,7 +165,18 @@ method delete_user*(this: ArchivesSpace, user_id: string): string {. base .} =
   ##    echo x.delete_user()
   this.client.delete(this.base_url & "/users/" & user_id).status
 
+method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. base .} =
+  ## Gets a user's details including current permissions.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_users_details("5")
+  this.client.get(this.base_url & "/users/" & user_id).body
+
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.delete_user("6")
+  echo x.get_a_users_details("5")
