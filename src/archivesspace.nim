@@ -176,7 +176,18 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
   ##    echo x.get_a_users_details("5")
   this.client.get(this.base_url & "/users/" & user_id).body
 
+method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Gets a sequence of corporate entity agent ids as strings.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_corporate_entity_agent_ids()
+  ##
+  this.client.get(this.base_url & "/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_a_users_details("5")
+  echo x.list_all_corporate_entity_agent_ids()
