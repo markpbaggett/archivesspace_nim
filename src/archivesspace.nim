@@ -187,6 +187,25 @@ method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {.
   ##
   this.client.get(this.base_url & "/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
+method list_all_corporate_entity_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of corporate entity agents.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_corporate_entity_agents()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  while page <= last_page:
+    data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
+    let entities = data["results"].getElems()
+    for entity in entities:
+      result.add(entity)
+    page += 1
+
 method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): string {. base .} =
   ## Gets a corporate entity by id.
   ##
@@ -201,4 +220,4 @@ method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): st
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_a_corporate_entity_by_id("2")
+  echo x.list_all_corporate_entity_agents()
