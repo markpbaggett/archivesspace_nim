@@ -154,8 +154,18 @@ method create_user*(this: ArchivesSpace, username: string, password: string, is_
   }
   this.client.post(this.base_url & "/users?password=" & password, body = $user).status
 
+method delete_user*(this: ArchivesSpace, user_id: string): string {. base .} =
+  ## Deletes a user.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_user()
+  this.client.delete(this.base_url & "/users/" & user_id).status
 
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_list_of_users()
+  echo x.delete_user("6")
