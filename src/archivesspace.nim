@@ -133,6 +133,29 @@ method get_list_of_users*(this: ArchivesSpace): seq[JsonNode] {. base .} =
       result.add(user)
     page += 1
 
+method create_user*(this: ArchivesSpace, username: string, password: string, is_admin: bool= false, full_name: string=""): string {. base .} =
+  ## Creates a new user.
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.create_user("Ryan", "ryan", true, "Ryan Mueller")
+  var name = ""
+  if full_name == "":
+    name = username
+  else:
+    name = full_name
+  let user = %*{
+    "username": username,
+    "name": name,
+    "is_admin": is_admin,
+  }
+  this.client.post(this.base_url & "/users?password=" & password, body = $user).status
+
+
+
 when isMainModule:
   let x = newArchivesSpace()
   echo x.get_list_of_users()
