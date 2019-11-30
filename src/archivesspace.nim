@@ -217,7 +217,18 @@ method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): st
   ##
   this.client.get(this.base_url & "/agents/corporate_entities/" & entity_id).body
 
+method delete_corporate_entity*(this: ArchivesSpace, entity_id: string): string {. base .} =
+  ## Deletes a coporate entity.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_corporate_entity("2")
+  ##
+  this.client.delete(this.base_url & "/agents/corporate_entities/" & entity_id).status
+
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_corporate_entity_agents()
+  echo x.delete_corporate_entity("888888")
