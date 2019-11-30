@@ -187,7 +187,18 @@ method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {.
   ##
   this.client.get(this.base_url & "/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
+method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): string {. base .} =
+  ## Gets a corporate entity by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_corporate_entity_by_id("2")
+  ##
+  this.client.get(this.base_url & "/agents/corporate_entities/" & entity_id).body
+
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_corporate_entity_agent_ids()
+  echo x.get_a_corporate_entity_by_id("2")
