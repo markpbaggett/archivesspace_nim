@@ -247,6 +247,17 @@ method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
       result.add(family)
     page += 1
 
+method list_all_family_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Gets a sequence of family agent ids as strings.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_family_agent_ids()
+  ##
+  this.client.get(this.base_url & "/agents/families?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_family_agents()
+  echo x.list_all_family_agent_ids()
