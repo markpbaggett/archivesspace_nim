@@ -228,7 +228,25 @@ method delete_corporate_entity*(this: ArchivesSpace, entity_id: string): string 
   ##
   this.client.delete(this.base_url & "/agents/corporate_entities/" & entity_id).status
 
+method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of family agents..
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_family_agents()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  while page <= last_page:
+    data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
+    let families = data["results"].getElems()
+    for family in families:
+      result.add(family)
+    page += 1
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.delete_corporate_entity("888888")
+  echo x.list_all_family_agents()
