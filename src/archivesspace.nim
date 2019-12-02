@@ -230,6 +230,20 @@ method delete_software*(this: ArchivesSpace, software_id: string): string {. bas
   ##
   this.client.delete(this.base_url & "/agents/software/" & software_id).status
 
+method list_records_by_external_id(this: ArchivesSpace, external_id: string, id_type: string = ""): string {. base .} =
+  ## List records by their external ID(s).
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_records_by_external_id("DNKB292")
+  ##
+  var type_paramenter = ""
+  if id_type != "":
+    type_paramenter = "&type=" & id_type
+  this.client.get(this.base_url & "/by-external-id?eid=" & external_id & type_paramenter).body
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
@@ -386,4 +400,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_a_software_by_id("1")
+  echo x.list_records_by_external_id()
