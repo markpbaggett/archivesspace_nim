@@ -1,4 +1,4 @@
-import httpclient, json, sequtils, strutils
+import httpclient, json, sequtils, strutils, strformat
 
 type
   ArchivesSpace* = ref object of RootObj
@@ -17,7 +17,7 @@ proc newArchivesSpace*(url: string="http://localhost:8089", user: string="admin"
   ##    let x = newArchivesSpace()
   ##
   let client = newHttpClient()
-  let json_data = parseJson(client.post(url & "/users/" & user & "/login?password=" & password).body)
+  let json_data = parseJson(client.post(fmt"{url}/users/{user}/login?password={password}").body)
   let session = json_data["session"].getStr()
   client.headers = newHttpHeaders({"X-ArchivesSpace-Session": session})
   ArchivesSpace(base_url: url, client: client, username: user)
@@ -31,7 +31,7 @@ method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {.
   ##    let x = newArchivesSpace()
   ##    echo x.list_all_corporate_entity_agent_ids()
   ##
-  this.client.get(this.base_url & "/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+  this.client.get(fmt"{this.base_url}/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
 method list_all_corporate_entity_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ## Gets a sequence of JsonNodes of corporate entity agents.
@@ -43,10 +43,10 @@ method list_all_corporate_entity_agents*(this: ArchivesSpace): seq[JsonNode] {. 
   ##    echo x.list_all_corporate_entity_agents()
   ##
   var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
+  var data = parseJson(this.client.get(fmt"{this.base_url}/agents/corporate_entities?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
   while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
+    data = parseJson(this.client.get(fmt"{this.base_url}/agents/corporate_entities?page={$page}&page_size=10").body)
     let entities = data["results"].getElems()
     for entity in entities:
       result.add(entity)
@@ -61,7 +61,7 @@ method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): st
   ##    let x = newArchivesSpace()
   ##    echo x.get_a_corporate_entity_by_id("2")
   ##
-  this.client.get(this.base_url & "/agents/corporate_entities/" & entity_id).body
+  this.client.get(fmt"{this.base_url}/agents/corporate_entities/{entity_id}").body
 
 method delete_corporate_entity*(this: ArchivesSpace, entity_id: string): string {. base .} =
   ## Deletes a coporate entity.
@@ -72,7 +72,7 @@ method delete_corporate_entity*(this: ArchivesSpace, entity_id: string): string 
   ##    let x = newArchivesSpace()
   ##    echo x.delete_corporate_entity("2")
   ##
-  this.client.delete(this.base_url & "/agents/corporate_entities/" & entity_id).status
+  this.client.delete(fmt"{this.base_url}/agents/corporate_entities/{entity_id}").status
 
 method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ## Gets a sequence of JsonNodes of family agents..
@@ -84,10 +84,10 @@ method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ##    echo x.list_all_family_agents()
   ##
   var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
+  var data = parseJson(this.client.get(fmt"{this.base_url}/agents/families?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
   while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
+    data = parseJson(this.client.get(fmt"{this.base_url}/agents/families?page={$page}&page_size=10").body)
     let families = data["results"].getElems()
     for family in families:
       result.add(family)
@@ -113,7 +113,7 @@ method get_a_family_by_id*(this: ArchivesSpace, family_id: string): string {. ba
   ##    let x = newArchivesSpace()
   ##    echo x.get_a_family_by_id("2")
   ##
-  this.client.get(this.base_url & "/agents/families/" & family_id).body
+  this.client.get(fmt"{this.base_url}/agents/families/{family_id}").body
 
 method delete_family*(this: ArchivesSpace, family_id: string): string {. base .} =
   ## Deletes a family.
@@ -124,7 +124,7 @@ method delete_family*(this: ArchivesSpace, family_id: string): string {. base .}
   ##    let x = newArchivesSpace()
   ##    echo x.delete_family("2")
   ##
-  this.client.delete(this.base_url & "/agents/families/" & family_id).status
+  this.client.delete(fmt"{this.base_url}/agents/families/{family_id}").status
 
 method list_all_person_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ## Gets a sequence of JsonNodes of person agents.
@@ -136,10 +136,10 @@ method list_all_person_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ##    echo x.list_all_person_agents()
   ##
   var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/agents/people?page=" & $page & "&page_size=10").body)
+  var data = parseJson(this.client.get(fmt"{this.base_url}/agents/people?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
   while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/agents/people?page=" & $page & "&page_size=10").body)
+    data = parseJson(this.client.get(fmt"{this.base_url}/agents/people?page={$page}&page_size=10").body)
     let people = data["results"].getElems()
     for person in people:
       result.add(person)
@@ -154,7 +154,7 @@ method list_all_person_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ##    let x = newArchivesSpace()
   ##    echo x.list_all_person_agent_ids()
   ##
-  this.client.get(this.base_url & "/agents/people?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+  this.client.get(fmt"{this.base_url}/agents/people?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
 method get_a_person_by_id*(this: ArchivesSpace, person_id: string): string {. base .} =
   ## Gets a person by id.
@@ -165,7 +165,7 @@ method get_a_person_by_id*(this: ArchivesSpace, person_id: string): string {. ba
   ##    let x = newArchivesSpace()
   ##    echo x.get_a_person_by_id("119")
   ##
-  this.client.get(this.base_url & "/agents/people/" & person_id).body
+  this.client.get(fmt"{this.base_url}/agents/people/{person_id}").body
 
 method delete_person*(this: ArchivesSpace, person_id: string): string {. base .} =
   ## Deletes a person agent.
@@ -176,7 +176,7 @@ method delete_person*(this: ArchivesSpace, person_id: string): string {. base .}
   ##    let x = newArchivesSpace()
   ##    echo x.delete_person("2")
   ##
-  this.client.delete(this.base_url & "/agents/people/" & person_id).status
+  this.client.delete(fmt"{this.base_url}/agents/people/{person_id}").status
 
 method list_all_software_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ## Gets a sequence of JsonNodes of software agents.
@@ -188,10 +188,10 @@ method list_all_software_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} 
   ##    echo x.list_all_software_agents()
   ##
   var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/agents/software?page=" & $page & "&page_size=10").body)
+  var data = parseJson(this.client.get(fmt"{this.base_url}/agents/software?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
   while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/agents/software?page=" & $page & "&page_size=10").body)
+    data = parseJson(this.client.get(fmt"{this.base_url}/agents/software?page={$page}&page_size=10").body)
     let softwares = data["results"].getElems()
     for software in softwares:
       result.add(software)
@@ -206,7 +206,7 @@ method list_all_software_agent_ids*(this: ArchivesSpace): seq[string] {. base .}
   ##    let x = newArchivesSpace()
   ##    echo x.list_all_software_agent_ids()
   ##
-  this.client.get(this.base_url & "/agents/software?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+  this.client.get(fmt"{this.base_url}/agents/software?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
 method get_a_software_by_id*(this: ArchivesSpace, software_id: string): string {. base .} =
   ## Gets a software by id.
@@ -217,7 +217,7 @@ method get_a_software_by_id*(this: ArchivesSpace, software_id: string): string {
   ##    let x = newArchivesSpace()
   ##    echo x.get_a_software_by_id("1")
   ##
-  this.client.get(this.base_url & "/agents/software/" & software_id).body
+  this.client.get(fmt"{this.base_url}/agents/software/{software_id}").body
 
 method delete_software*(this: ArchivesSpace, software_id: string): string {. base .} =
   ## Deletes a software agent.
@@ -228,7 +228,7 @@ method delete_software*(this: ArchivesSpace, software_id: string): string {. bas
   ##    let x = newArchivesSpace()
   ##    echo x.delete_software("2")
   ##
-  this.client.delete(this.base_url & "/agents/software/" & software_id).status
+  this.client.delete(fmt"{this.base_url}/agents/software/{software_id}").status
 
 method list_records_by_external_id(this: ArchivesSpace, external_id: string, id_type: string = ""): string {. base .} =
   ## List records by their external ID(s).
@@ -241,8 +241,8 @@ method list_records_by_external_id(this: ArchivesSpace, external_id: string, id_
   ##
   var type_paramenter = ""
   if id_type != "":
-    type_paramenter = "&type=" & id_type
-  this.client.get(this.base_url & "/by-external-id?eid=" & external_id & type_paramenter).body
+    type_paramenter = fmt"&type={id_type}"
+  this.client.get(fmt"{this.base_url}/by-external-id?eid={external_id}{type_paramenter}").body
 
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
@@ -254,7 +254,7 @@ method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ##    let x = newArchivesSpace()
   ##    echo x.get_all_respositories()
   ##
-  this.client.get(this.base_url & "/repositories").body
+  this.client.get(fmt"{this.base_url}/repositories").body
 
 method get_repository_by_id*(this: ArchivesSpace, repo_id: string): string {. base .} =
   ## Gets a repository by its id.
@@ -266,7 +266,7 @@ method get_repository_by_id*(this: ArchivesSpace, repo_id: string): string {. ba
   ##    let x = newArchivesSpace()
   ##    x.get_repository_by_id("7")
   ##
-  this.client.get(this.base_url & "/repositories/" & $repo_id).body
+  this.client.get(fmt"{this.base_url}/repositories/{$repo_id}").body
 
 method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: string): string {. base .} =
   ## Creates a new repository in the ArchivesSpace instance.
@@ -291,7 +291,7 @@ method create_repository*(this: ArchivesSpace, repo_code: string, repo_name: str
     "created_by": this.username,
     "publish": true
   }
-  this.client.post(this.base_url & "/repositories", body = $body).status
+  this.client.post(fmt"{this.base_url}/repositories", body = $body).status
 
 method delete_repository*(this: ArchivesSpace, repo_code: string): string {. base .} =
   ## Deletes an existing repository.
@@ -303,7 +303,7 @@ method delete_repository*(this: ArchivesSpace, repo_code: string): string {. bas
   ##    let x = newArchivesSpace()
   ##    echo x.delete_repository("7")
   ##
-  this.client.delete(this.base_url & "/repositories/" & repo_code).status
+  this.client.delete(fmt"{this.base_url}/repositories/{repo_code}").status
 
 method update_repository_name*(this: ArchivesSpace, repo_code: string, repo_name: string): string {. base .} =
   ## Updates a repository name.
@@ -321,7 +321,7 @@ method update_repository_name*(this: ArchivesSpace, repo_code: string, repo_name
     "name": repo_name,
     "publish": old_data["publish"].getBool()
   }
-  this.client.post(this.base_url & "/repositories/" & repo_code, body = $body).status
+  this.client.post(fmt"{this.base_url}/repositories/{repo_code}", body = $body).status
 
 method get_list_of_user_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Gets a sequence of user ids as strings.
@@ -333,7 +333,7 @@ method get_list_of_user_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ##    let x = newArchivesSpace()
   ##    echo x.get_list_of_user_ids()
   ##
-  this.client.get(this.base_url & "/users?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+  this.client.get(fmt"{this.base_url}/users?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
 method get_list_of_users*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ## Gets a sequence of JsonNodes containing details about each user in the instance of ArchivesSpace.
@@ -346,10 +346,10 @@ method get_list_of_users*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   ##    echo x.get_list_of_users()
   ##
   var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/users?page=" & $page & "&page_size=10").body)
+  var data = parseJson(this.client.get(fmt"{this.base_url}/users?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
   while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/users?page=" & $page & "&page_size=10").body)
+    data = parseJson(this.client.get(fmt"{this.base_url}/users?page={$page}&page_size=10").body)
     let users = data["results"].getElems()
     for user in users:
       result.add(user)
@@ -374,7 +374,7 @@ method create_user*(this: ArchivesSpace, username: string, password: string, is_
     "name": name,
     "is_admin": is_admin,
   }
-  this.client.post(this.base_url & "/users?password=" & password, body = $user).status
+  this.client.post(fmt"{this.base_url}/users?password={password}", body = $user).status
 
 method delete_user*(this: ArchivesSpace, user_id: string): string {. base .} =
   ## Deletes a user.
@@ -385,7 +385,7 @@ method delete_user*(this: ArchivesSpace, user_id: string): string {. base .} =
   ##
   ##    let x = newArchivesSpace()
   ##    echo x.delete_user()
-  this.client.delete(this.base_url & "/users/" & user_id).status
+  this.client.delete(fmt"{this.base_url}/users/{user_id}").status
 
 method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. base .} =
   ## Gets a user's details including current permissions.
@@ -396,8 +396,8 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
   ##
   ##    let x = newArchivesSpace()
   ##    echo x.get_a_users_details("5")
-  this.client.get(this.base_url & "/users/" & user_id).body
+  this.client.get(fmt"{this.base_url}/users/{user_id}").body
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_records_by_external_id()
+  echo x.list_all_software_agent_ids()
