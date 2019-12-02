@@ -167,6 +167,17 @@ method get_a_person_by_id*(this: ArchivesSpace, person_id: string): string {. ba
   ##
   this.client.get(this.base_url & "/agents/people/" & person_id).body
 
+method delete_person*(this: ArchivesSpace, person_id: string): string {. base .} =
+  ## Deletes a person agent.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_person("2")
+  ##
+  this.client.delete(this.base_url & "/agents/people/" & person_id).status
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
