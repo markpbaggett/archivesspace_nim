@@ -219,6 +219,17 @@ method get_a_software_by_id*(this: ArchivesSpace, software_id: string): string {
   ##
   this.client.get(this.base_url & "/agents/software/" & software_id).body
 
+method delete_software*(this: ArchivesSpace, software_id: string): string {. base .} =
+  ## Deletes a software agent.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_software("2")
+  ##
+  this.client.delete(this.base_url & "/agents/software/" & software_id).status
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
