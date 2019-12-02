@@ -126,6 +126,47 @@ method delete_family*(this: ArchivesSpace, family_id: string): string {. base .}
   ##
   this.client.delete(this.base_url & "/agents/families/" & family_id).status
 
+method list_all_person_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of person agents.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_person_agents()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(this.base_url & "/agents/people?page=" & $page & "&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  while page <= last_page:
+    data = parseJson(this.client.get(this.base_url & "/agents/people?page=" & $page & "&page_size=10").body)
+    let people = data["results"].getElems()
+    for person in people:
+      result.add(person)
+    page += 1
+
+method list_all_person_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Gets a sequence of person agent ids as strings.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_person_agent_ids()
+  ##
+  this.client.get(this.base_url & "/agents/people?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method get_a_person_by_id*(this: ArchivesSpace, person_id: string): string {. base .} =
+  ## Gets a person by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_person_by_id("119")
+  ##
+  this.client.get(this.base_url & "/agents/people/" & person_id).body
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
@@ -282,4 +323,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_a_family_by_id("1")
+  echo x.get_a_person_by_id("119")
