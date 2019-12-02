@@ -269,6 +269,16 @@ method get_a_family_by_id*(this: ArchivesSpace, family_id: string): string {. ba
   ##
   this.client.get(this.base_url & "/agents/families/" & family_id).body
 
+method delete_family*(this: ArchivesSpace, family_id: string): string {. base .} =
+  ## Deletes a family.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_family("2")
+  ##
+  this.client.delete(this.base_url & "/agents/families/" & family_id).status
 
 when isMainModule:
   let x = newArchivesSpace()
