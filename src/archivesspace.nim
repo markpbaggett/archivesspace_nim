@@ -258,6 +258,18 @@ method list_all_family_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ##
   this.client.get(this.base_url & "/agents/families?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
 
+method get_a_family_by_id*(this: ArchivesSpace, family_id: string): string {. base .} =
+  ## Gets a family by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_family_by_id("2")
+  ##
+  this.client.get(this.base_url & "/agents/families/" & family_id).body
+
+
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_family_agent_ids()
+  echo x.get_a_family_by_id("1")
