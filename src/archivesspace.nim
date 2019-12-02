@@ -22,6 +22,110 @@ proc newArchivesSpace*(url: string="http://localhost:8089", user: string="admin"
   client.headers = newHttpHeaders({"X-ArchivesSpace-Session": session})
   ArchivesSpace(base_url: url, client: client, username: user)
 
+method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Gets a sequence of corporate entity agent ids as strings.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_corporate_entity_agent_ids()
+  ##
+  this.client.get(this.base_url & "/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method list_all_corporate_entity_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of corporate entity agents.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_corporate_entity_agents()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  while page <= last_page:
+    data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
+    let entities = data["results"].getElems()
+    for entity in entities:
+      result.add(entity)
+    page += 1
+
+method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): string {. base .} =
+  ## Gets a corporate entity by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_corporate_entity_by_id("2")
+  ##
+  this.client.get(this.base_url & "/agents/corporate_entities/" & entity_id).body
+
+method delete_corporate_entity*(this: ArchivesSpace, entity_id: string): string {. base .} =
+  ## Deletes a coporate entity.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_corporate_entity("2")
+  ##
+  this.client.delete(this.base_url & "/agents/corporate_entities/" & entity_id).status
+
+method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of family agents..
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_family_agents()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  while page <= last_page:
+    data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
+    let families = data["results"].getElems()
+    for family in families:
+      result.add(family)
+    page += 1
+
+method list_all_family_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Gets a sequence of family agent ids as strings.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_family_agent_ids()
+  ##
+  this.client.get(this.base_url & "/agents/families?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method get_a_family_by_id*(this: ArchivesSpace, family_id: string): string {. base .} =
+  ## Gets a family by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_family_by_id("2")
+  ##
+  this.client.get(this.base_url & "/agents/families/" & family_id).body
+
+method delete_family*(this: ArchivesSpace, family_id: string): string {. base .} =
+  ## Deletes a family.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_family("2")
+  ##
+  this.client.delete(this.base_url & "/agents/families/" & family_id).status
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
@@ -175,110 +279,6 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
   ##    let x = newArchivesSpace()
   ##    echo x.get_a_users_details("5")
   this.client.get(this.base_url & "/users/" & user_id).body
-
-method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
-  ## Gets a sequence of corporate entity agent ids as strings.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.list_all_corporate_entity_agent_ids()
-  ##
-  this.client.get(this.base_url & "/agents/corporate_entities?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
-
-method list_all_corporate_entity_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
-  ## Gets a sequence of JsonNodes of corporate entity agents.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.list_all_corporate_entity_agents()
-  ##
-  var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
-  let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/agents/corporate_entities?page=" & $page & "&page_size=10").body)
-    let entities = data["results"].getElems()
-    for entity in entities:
-      result.add(entity)
-    page += 1
-
-method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): string {. base .} =
-  ## Gets a corporate entity by id.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.get_a_corporate_entity_by_id("2")
-  ##
-  this.client.get(this.base_url & "/agents/corporate_entities/" & entity_id).body
-
-method delete_corporate_entity*(this: ArchivesSpace, entity_id: string): string {. base .} =
-  ## Deletes a coporate entity.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.delete_corporate_entity("2")
-  ##
-  this.client.delete(this.base_url & "/agents/corporate_entities/" & entity_id).status
-
-method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
-  ## Gets a sequence of JsonNodes of family agents..
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.list_all_family_agents()
-  ##
-  var page = 1
-  var data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
-  let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(this.base_url & "/agents/families?page=" & $page & "&page_size=10").body)
-    let families = data["results"].getElems()
-    for family in families:
-      result.add(family)
-    page += 1
-
-method list_all_family_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
-  ## Gets a sequence of family agent ids as strings.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.list_all_family_agent_ids()
-  ##
-  this.client.get(this.base_url & "/agents/families?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
-
-method get_a_family_by_id*(this: ArchivesSpace, family_id: string): string {. base .} =
-  ## Gets a family by id.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.get_a_family_by_id("2")
-  ##
-  this.client.get(this.base_url & "/agents/families/" & family_id).body
-
-method delete_family*(this: ArchivesSpace, family_id: string): string {. base .} =
-  ## Deletes a family.
-  ##
-  ## Examples:
-  ## .. code-block:: nim
-  ##
-  ##    let x = newArchivesSpace()
-  ##    echo x.delete_family("2")
-  ##
-  this.client.delete(this.base_url & "/agents/families/" & family_id).status
 
 when isMainModule:
   let x = newArchivesSpace()
