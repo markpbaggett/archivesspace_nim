@@ -344,6 +344,17 @@ method get_a_location_profile_by_id*(this: ArchivesSpace, identifier: string): s
   ##
   this.client.get(fmt"{this.base_url}/location_profile/{identifier}").body
 
+method delete_location_profile*(this: ArchivesSpace, identifier: string): string {. base .} =
+  ## Deletes a location profile.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_location_profile("2")
+  ##
+  this.client.delete(fmt"{this.base_url}/location_profile/{identifier}").status
+
 method list_all_location_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Get a list of Location ids.
   ##
@@ -380,6 +391,16 @@ method get_a_location_by_id*(this: ArchivesSpace, identifier: string): string {.
   ##
   this.client.get(fmt"{this.base_url}/location/{identifier}").body
 
+method delete_location*(this: ArchivesSpace, identifier: string): string {. base .} =
+  ## Deletes a location.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_location("2")
+  ##
+  this.client.delete(fmt"{this.base_url}/location/{identifier}").status
 
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
