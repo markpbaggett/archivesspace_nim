@@ -220,7 +220,7 @@ method delete_software*(this: ArchivesSpace, software_id: string): string {. bas
   ##
   this.client.delete(fmt"{this.base_url}/agents/software/{software_id}").status
 
-method list_records_by_external_id(this: ArchivesSpace, external_id: string, id_type: string = ""): string {. base .} =
+method list_records_by_external_id*(this: ArchivesSpace, external_id: string, id_type: string = ""): string {. base .} =
   ## List records by their external ID(s).
   ##
   ## Examples:
@@ -233,6 +233,42 @@ method list_records_by_external_id(this: ArchivesSpace, external_id: string, id_
   if id_type != "":
     type_paramenter = fmt"&type={id_type}"
   this.client.get(fmt"{this.base_url}/by-external-id?eid={external_id}{type_paramenter}").body
+
+method list_all_container_profile_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Get a list of Container Profile ids.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_container_profile_ids()
+  ##
+  this.client.get(fmt"{this.base_url}/container_profiles?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method list_all_container_profiles*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of container profiles.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_container_profiles()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(fmt"{this.base_url}/agents/software?page={$page}&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  this.get_all_the_things(fmt"{this.base_url}/container_profiles?page={$page}&page_size=10", last_page)
+
+method get_a_container_profile_by_id*(this: ArchivesSpace, container_profile_id: string): string {. base .} =
+  ## Gets a container profile by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_container_profile_by_id("1")
+  ##
+  this.client.get(fmt"{this.base_url}/container_profile/{container_profile_id}").body
 
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
@@ -385,4 +421,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_corporate_entity_agents()
+  echo x.list_all_container_profile_ids()
