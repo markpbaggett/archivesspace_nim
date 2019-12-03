@@ -1,4 +1,4 @@
-import httpclient, json, strutils, strformat, strtabs, typetraits
+import httpclient, json, strutils, strformat
 
 type
   ArchivesSpace* = ref object of RootObj
@@ -344,6 +344,43 @@ method get_a_location_profile_by_id*(this: ArchivesSpace, identifier: string): s
   ##
   this.client.get(fmt"{this.base_url}/location_profile/{identifier}").body
 
+method list_all_location_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Get a list of Location ids.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_location_ids()
+  ##
+  this.client.get(fmt"{this.base_url}/locations?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method list_all_locations*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of locations.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_locations()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(fmt"{this.base_url}/locations?page={$page}&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  this.get_all_the_things(fmt"{this.base_url}/locations?page={$page}&page_size=10", last_page)
+
+method get_a_location_by_id*(this: ArchivesSpace, identifier: string): string {. base .} =
+  ## Gets a location by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_location_by_id("1")
+  ##
+  this.client.get(fmt"{this.base_url}/location/{identifier}").body
+
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
@@ -495,4 +532,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_location_profiles()
+  echo x.list_all_locations()
