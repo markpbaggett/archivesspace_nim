@@ -270,6 +270,17 @@ method get_a_container_profile_by_id*(this: ArchivesSpace, container_profile_id:
   ##
   this.client.get(fmt"{this.base_url}/container_profile/{container_profile_id}").body
 
+method delete_container_profile*(this: ArchivesSpace, identifer: string): string {. base .} =
+  ## Deletes a container profile.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.delete_container_profile("2")
+  ##
+  this.client.delete(fmt"{this.base_url}/container_profile/{identifier}").status
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
