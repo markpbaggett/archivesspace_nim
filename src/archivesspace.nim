@@ -1,4 +1,4 @@
-import httpclient, json, sequtils, strutils, strformat
+import httpclient, json, strutils, strformat
 
 type
   ArchivesSpace* = ref object of RootObj
@@ -21,6 +21,16 @@ proc newArchivesSpace*(url: string="http://localhost:8089", user: string="admin"
   let session = json_data["session"].getStr()
   client.headers = newHttpHeaders({"X-ArchivesSpace-Session": session})
   ArchivesSpace(base_url: url, client: client, username: user)
+
+method get_all_the_things(this: ArchivesSpace, request: string, last_page: int): seq[JsonNode] {. base .} =
+  var page = 1
+  var data: JsonNode
+  while page <= last_page:
+    data = parseJson(this.client.get(request).body)
+    let things = data["results"].getElems()
+    for thing in things:
+      result.add(thing)
+    page += 1
 
 method list_all_corporate_entity_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Gets a sequence of corporate entity agent ids as strings.
@@ -45,12 +55,7 @@ method list_all_corporate_entity_agents*(this: ArchivesSpace): seq[JsonNode] {. 
   var page = 1
   var data = parseJson(this.client.get(fmt"{this.base_url}/agents/corporate_entities?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(fmt"{this.base_url}/agents/corporate_entities?page={$page}&page_size=10").body)
-    let entities = data["results"].getElems()
-    for entity in entities:
-      result.add(entity)
-    page += 1
+  this.get_all_the_things(fmt"{this.base_url}/agents/corporate_entities?page={$page}&page_size=10", last_page)
 
 method get_a_corporate_entity_by_id*(this: ArchivesSpace, entity_id: string): string {. base .} =
   ## Gets a corporate entity by id.
@@ -86,12 +91,7 @@ method list_all_family_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   var page = 1
   var data = parseJson(this.client.get(fmt"{this.base_url}/agents/families?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(fmt"{this.base_url}/agents/families?page={$page}&page_size=10").body)
-    let families = data["results"].getElems()
-    for family in families:
-      result.add(family)
-    page += 1
+  this.get_all_the_things(fmt"{this.base_url}/agents/families?page={$page}&page_size=10", last_page)
 
 method list_all_family_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Gets a sequence of family agent ids as strings.
@@ -138,12 +138,7 @@ method list_all_person_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   var page = 1
   var data = parseJson(this.client.get(fmt"{this.base_url}/agents/people?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(fmt"{this.base_url}/agents/people?page={$page}&page_size=10").body)
-    let people = data["results"].getElems()
-    for person in people:
-      result.add(person)
-    page += 1
+  this.get_all_the_things(fmt"{this.base_url}/agents/people?page={$page}&page_size=10", last_page)
 
 method list_all_person_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Gets a sequence of person agent ids as strings.
@@ -190,12 +185,7 @@ method list_all_software_agents*(this: ArchivesSpace): seq[JsonNode] {. base .} 
   var page = 1
   var data = parseJson(this.client.get(fmt"{this.base_url}/agents/software?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(fmt"{this.base_url}/agents/software?page={$page}&page_size=10").body)
-    let softwares = data["results"].getElems()
-    for software in softwares:
-      result.add(software)
-    page += 1
+  this.get_all_the_things(fmt"{this.base_url}/agents/software?page={$page}&page_size=10", last_page)
 
 method list_all_software_agent_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Gets a sequence of software agent ids as strings.
@@ -348,12 +338,7 @@ method get_list_of_users*(this: ArchivesSpace): seq[JsonNode] {. base .} =
   var page = 1
   var data = parseJson(this.client.get(fmt"{this.base_url}/users?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
-  while page <= last_page:
-    data = parseJson(this.client.get(fmt"{this.base_url}/users?page={$page}&page_size=10").body)
-    let users = data["results"].getElems()
-    for user in users:
-      result.add(user)
-    page += 1
+  this.get_all_the_things(fmt"{this.base_url}/users?page={$page}&page_size=10", last_page)
 
 method create_user*(this: ArchivesSpace, username: string, password: string, is_admin: bool= false, full_name: string=""): string {. base .} =
   ## Creates a new user.
@@ -400,4 +385,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_software_agent_ids()
+  echo x.list_all_corporate_entity_agents()
