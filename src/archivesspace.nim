@@ -270,7 +270,7 @@ method get_a_container_profile_by_id*(this: ArchivesSpace, container_profile_id:
   ##
   this.client.get(fmt"{this.base_url}/container_profile/{container_profile_id}").body
 
-method delete_container_profile*(this: ArchivesSpace, identifer: string): string {. base .} =
+method delete_container_profile*(this: ArchivesSpace, identifier: string): string {. base .} =
   ## Deletes a container profile.
   ##
   ## Examples:
@@ -280,6 +280,17 @@ method delete_container_profile*(this: ArchivesSpace, identifer: string): string
   ##    echo x.delete_container_profile("2")
   ##
   this.client.delete(fmt"{this.base_url}/container_profile/{identifier}").status
+
+method get_global_preferences*(this: ArchivesSpace): string {. base .} =
+  ## Get global preferences.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_global_preferences()
+  ##
+  this.client.get(fmt"{this.base_url}/current_global_preferences").body
 
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
@@ -432,4 +443,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_container_profile_ids()
+  echo x.get_global_preferences()
