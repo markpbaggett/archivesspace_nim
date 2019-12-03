@@ -1,4 +1,4 @@
-import httpclient, json, strutils, strformat
+import httpclient, json, strutils, strformat, strtabs, typetraits
 
 type
   ArchivesSpace* = ref object of RootObj
@@ -292,6 +292,22 @@ method get_global_preferences*(this: ArchivesSpace): string {. base .} =
   ##
   this.client.get(fmt"{this.base_url}/current_global_preferences").body
 
+method calculate_extent(this: ArchivesSpace, record_uri: string): string {. base .} =
+  # Todo: this returns {"error":"undefined method `[]' for nil:NilClass"}.  What versions of AS support this?
+  this.client.get(fmt"{this.base_url}/extent_calculator?record_uri={record_uri}").body
+
+method get_job_types*(this: ArchivesSpace): string {. base .} =
+  ## Lists all supported job types
+  ##
+  ## Examples:
+  ##
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_job_types()
+  ##
+  this.client.get(fmt"{this.base_url}/job_types").body
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
@@ -443,4 +459,3 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.get_global_preferences()
