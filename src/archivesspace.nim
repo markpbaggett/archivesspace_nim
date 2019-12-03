@@ -255,7 +255,7 @@ method list_all_container_profiles*(this: ArchivesSpace): seq[JsonNode] {. base 
   ##    echo x.list_all_container_profiles()
   ##
   var page = 1
-  var data = parseJson(this.client.get(fmt"{this.base_url}/agents/software?page={$page}&page_size=10").body)
+  var data = parseJson(this.client.get(fmt"{this.base_url}/contatiner_profiles?page={$page}&page_size=10").body)
   let last_page = data["last_page"].getInt()
   this.get_all_the_things(fmt"{this.base_url}/container_profiles?page={$page}&page_size=10", last_page)
 
@@ -307,6 +307,42 @@ method get_job_types*(this: ArchivesSpace): string {. base .} =
   ##    echo x.get_job_types()
   ##
   this.client.get(fmt"{this.base_url}/job_types").body
+
+method list_all_location_profile_ids*(this: ArchivesSpace): seq[string] {. base .} =
+  ## Get a list of Location Profile ids.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_location_profile_ids()
+  ##
+  this.client.get(fmt"{this.base_url}/location_profiles?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method list_all_location_profiles*(this: ArchivesSpace): seq[JsonNode] {. base .} =
+  ## Gets a sequence of JsonNodes of location profiles.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_location_profiles()
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(fmt"{this.base_url}/location_profiles?page={$page}&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  this.get_all_the_things(fmt"{this.base_url}/location_profiles?page={$page}&page_size=10", last_page)
+
+method get_a_location_profile_by_id*(this: ArchivesSpace, identifier: string): string {. base .} =
+  ## Gets a location profile by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_a_location_profile_by_id("1")
+  ##
+  this.client.get(fmt"{this.base_url}/location_profile/{identifier}").body
 
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
@@ -459,3 +495,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
+  echo x.list_all_location_profiles()
