@@ -402,6 +402,17 @@ method delete_location*(this: ArchivesSpace, identifier: string): string {. base
   ##
   this.client.delete(fmt"{this.base_url}/location/{identifier}").status
 
+method list_all_reports*(this: ArchivesSpace): string {. base .} =
+  ## List all reports.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_reports()
+  ##
+  this.client.get(fmt"{this.base_url}/reports").body
+
 method get_all_repositories*(this: ArchivesSpace): string {. base .} =
   ## Gets all repositories in an ArchivesSpace instance.
   ##
@@ -553,4 +564,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_locations()
+  echo x.list_all_reports()
