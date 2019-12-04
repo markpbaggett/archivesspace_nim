@@ -492,6 +492,42 @@ method update_repository_name*(this: ArchivesSpace, repo_code: string, repo_name
   }
   this.client.post(fmt"{this.base_url}/repositories/{repo_code}", body = $body).status
 
+method list_all_accessions*(this: ArchivesSpace, repo_id: int): seq[JsonNode] {. base .} =
+  ## Lists all accessions for a repository.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_accessions(2)
+  ##
+  var page = 1
+  var data = parseJson(this.client.get(fmt"{this.base_url}/repositories/{repo_id}/accessions?page={$page}&page_size=10").body)
+  let last_page = data["last_page"].getInt()
+  this.get_all_the_things(fmt"{this.base_url}/repositories/{repo_id}/accessions?page={$page}&page_size=10", last_page)
+
+method list_all_accession_ids*(this: ArchivesSpace, repo_id: int): seq[string] {. base .} =
+  ## Get a list of accession ids for a repository.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.list_all_accession_ids(2)
+  ##
+  this.client.get(fmt"{this.base_url}/repositories/{repo_id}/accessions?all_ids=true").body.replace("[", "").replace("]", "").replace("\n", "").split(",")
+
+method get_an_accession_by_id*(this: ArchivesSpace, repo_id: int, identifier: int): string {. base .} =
+  ## Gets an accession by id.
+  ##
+  ## Examples:
+  ## .. code-block:: nim
+  ##
+  ##    let x = newArchivesSpace()
+  ##    echo x.get_an_accession_by_id(2, 2)
+  ##
+  this.client.get(fmt"{this.base_url}/repositories/{repo_id}/accessions/{identifier}").body
+
 method get_list_of_user_ids*(this: ArchivesSpace): seq[string] {. base .} =
   ## Gets a sequence of user ids as strings.
   ##
@@ -564,4 +600,4 @@ method get_a_users_details*(this: ArchivesSpace, user_id: string): string {. bas
 
 when isMainModule:
   let x = newArchivesSpace()
-  echo x.list_all_reports()
+  echo x.list_all_accession_ids(2)
